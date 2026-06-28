@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1512">
+  <title>האינציקלופדיה של הרעיוננות</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'SimplerPro-Regular';
+      src: url('SimplerPro-Regular.otf') format('opentype');
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'SimplerPro-BoldItalic';
+      src: url('SimplerPro-BoldItalic.otf') format('opentype');
+      font-weight: 900;
+      font-style: italic;
+    }
+
+    @font-face {
+      font-family: 'SimplerPro-BoldItalic-Nav';
+      src: url('SimplerPro-BoldItalic.otf') format('opentype');
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      background: #1a1617;
+      font-family: 'Heebo', sans-serif;
+    }
+
+    /* Outer shell — fixed 1512×982, scaled to fit viewport */
+    #shell {
+      width: 1512px;
+      height: 982px;
+      background: #2a2425;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      transform-origin: top left;
+    }
+
+    /* Dashed outline on the very outer edge */
+    #shell::before {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border: 1.5px dashed rgba(255,255,255,0.45);
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* ─── NAV BAR ─── */
+    #nav {
+      width: 100%;
+      height: 76px;
+      background: #2a2425;
+      display: flex;
+      align-items: stretch;
+      flex-shrink: 0;
+      direction: rtl;
+      border-bottom: 1.5px dashed rgba(255,255,255,0.45);
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 24px;
+      color: #e5e7e5;
+      font-family: 'Heebo', sans-serif;
+      font-size: 18px;
+      font-weight: 400;
+      cursor: pointer;
+      white-space: nowrap;
+      border-left: 1.5px dashed rgba(255,255,255,0.45);
+      position: relative;
+    }
+
+    .nav-item:hover {
+      font-family: 'SimplerPro-BoldItalic-Nav', sans-serif;
+    }
+
+    /* Logo item — rightmost */
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px 0 24px;
+      border-left: 1.5px dashed rgba(255,255,255,0.45);
+      border-right: none;
+      flex-shrink: 0;
+    }
+
+    /* Spacer that grows to fill remaining space */
+    .nav-spacer {
+      flex: 1;
+      border-left: 1.5px dashed rgba(255,255,255,0.45);
+    }
+
+    /* Nav text items */
+    .nav-label {
+      font-size: 18px;
+      font-weight: 400;
+      color: #e5e7e5;
+      min-width: 140px;
+    }
+
+    .nav-search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 160px;
+      border-left: none;
+      direction: ltr;
+    }
+
+    .nav-search svg {
+      width: 18px;
+      height: 18px;
+      opacity: 0.85;
+      flex-shrink: 0;
+    }
+
+    /* ─── CONTENT WRAPPER ─── */
+    #content-wrapper {
+      flex: 1;
+      padding: 8px 28px 20px 28px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Blue-bordered content frame */
+    #content-frame {
+      flex: 1;
+      border: none;
+      position: relative;
+      overflow: hidden;
+      background: #D9D9D9;
+    }
+
+    /* The p5 canvas area fills the content frame */
+    .tool-canvas-area {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      background: #D9D9D9;
+    }
+
+    canvas { display: block; background: transparent; }
+  </style>
+</head>
+<body>
+  <div id="shell">
+
+    <!-- NAV BAR -->
+    <nav id="nav">
+      <!-- Rightmost: Logo + Site name -->
+      <div class="nav-item nav-logo">
+        <!-- Full logo SVG from לוגו אתר .svg -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 717.2 173.4" style="height:52px;width:auto;display:block;">
+          <defs>
+            <style>.st0{fill:#e5e7e5}.st1{fill:#e7e7e7}</style>
+          </defs>
+          <g>
+            <path class="st0" d="M63.6,144.5l.8-6c1.2.3,2.6.6,4,.6,3.6,0,5.7-1.4,6.8-8.6l3.5-22.1h-10l1.1-6.4h30.1c7.3,0,11.6,4.1,11.6,11.1s-.2,3.2-.4,4.9l-4.3,26.9h-6.9l4.3-26.7c.2-1,.2-2,.2-2.9,0-4.4-2-6.9-6.8-6.9h-12l-4,25.1c-1.3,8.4-6.1,11.9-12.8,11.9s-3.5-.2-5.2-.8Z"/>
+            <path class="st0" d="M122.3,144.8l5.8-36.5h-4.9l1-6.4h11.9l-6.9,42.9h-6.9Z"/>
+            <path class="st0" d="M140.2,144.1l1-6.4c1.6,1.1,3.5,1.7,5.7,1.7,3.5,0,5.9-1.3,6.8-6.9l3.7-24h-10.1l1-6.4h16.9l-5,31.7c-1.3,8.4-6,11.9-13,11.9s-5-.5-7.1-1.5Z"/>
+            <path class="st0" d="M174.6,144.8l5.8-36.5h-4.9l1-6.4h11.9l-6.9,42.9h-6.9Z"/>
+            <path class="st0" d="M200,129.4l3.4-21.1h-4.9l1-6.4h11.9l-4.4,27.4h-7Z"/>
+            <path class="st0" d="M214.2,144.8l1-6.4h4.7c4.8,0,7,0,9.1-.3l-8.8-36.2h7.5l8.3,34.8c5.9-2.9,7.4-9.5,9.7-19.2,1.5-6.2,2.6-13,3.1-15.6h6.9l-.9,5.9c-1.2,6.4-2.1,10.9-3.1,14.1-4.8,17.6-11.6,22.9-29.3,22.9h-8.3Z"/>
+            <path class="st0" d="M281.8,144.8l4.2-26.6c.2-1.1.2-2,.2-2.9,0-4.4-2.1-6.9-6.8-6.9h-14.7l1-6.4h16c7.2,0,11.6,4,11.6,11.1s-.2,3.1-.5,5l-4.2,26.8h-6.9Z"/>
+            <path class="st0" d="M301.9,144.8l3.6-22.7h6.9l-3.6,22.7h-6.9ZM329.5,144.8l4.2-26.7c.2-1,.2-2,.2-2.9,0-4.4-2.1-6.9-6.8-6.9h-19.5l1.1-6.4h20.7c7.4,0,11.6,4.1,11.6,11.5s-.2,2.8-.4,4.5l-4.3,26.8h-6.9Z"/>
+            <path class="st0" d="M372.4,144.8l20.6-36.4h-23.6l3.5-21.6h6.8l-2.4,15.3h24.1l-1,6.3-20.4,36.5h-7.6Z"/>
+            <path class="st0" d="M407.7,126.8c0-1.8.2-3.6.5-5.6l3.1-19.2h6.4l-2.9,18.5c-.5,3.4-.6,4.8-.4,5.5,8,0,13.5-5.4,14.9-14.6l1.5-9.4h6.6l-1.7,10.8c-1.7,11-9.7,18-20.6,18.1,1.6,5.9,5.9,8.9,12.6,8.9,10.4,0,17.8-7.6,19.8-20.3l2.7-17.5h6.7l-2.8,18c-2.5,15.9-13.1,26-27.2,26s-19.2-7.1-19.2-19.2Z"/>
+          </g>
+          <g>
+            <path class="st0" d="M0,72.6l3.6-22.7h6.9l-3.6,22.7H0ZM27.6,72.6l4.2-26.7c.2-1,.2-2,.2-2.9,0-4.4-2.1-6.9-6.8-6.9H5.8l1.1-6.4h20.7c7.4,0,11.6,4.1,11.6,11.5s-.2,2.8-.4,4.5l-4.3,26.8h-6.9Z"/>
+            <path class="st0" d="M51.7,57.2l3.4-21.1h-4.9l1-6.4h11.9l-4.4,27.4h-7Z"/>
+            <path class="st0" d="M85.8,72.6l5.8-36.5h-20.6l1-6.4h36.3l-1,6.4h-8.8l-5.8,36.5h-6.9Z"/>
+            <path class="st0" d="M110.8,71.1l1.1-6.8c3.6,1.6,7.7,2.6,12,2.6,12.1,0,19.3-7.8,19.3-19.4s-3.7-12.7-11.6-12.7-12.8,5.1-12.8,11.1,2.1,6.3,6.2,6.3l-1,6.3c-7.7-.2-12-4.2-12-11.6s7.8-18.3,20.6-18.3,17.3,6.7,17.3,18.2-10.9,26.4-27.3,26.4-8.3-.7-11.9-2.2Z"/>
+            <path class="st0" d="M159.4,72.6l5.8-36.5h-4.9l1-6.4h11.9l-6.9,42.9h-6.9Z"/>
+            <path class="st0" d="M185.2,72.6l20.6-36.4h-23.6l3.5-21.6h6.8l-2.4,15.3h24.1l-1,6.3-20.4,36.5h-7.6Z"/>
+            <path class="st0" d="M215.1,83.5l5.4-33.6h6.9l-5.4,33.6h-6.9ZM232.6,72.5l19.8-36.4h-30.6l1-6.4h37.9l-1,6.3-19.6,36.5h-7.6Z"/>
+            <path class="st0" d="M269.5,57.2l3.4-21.1h-4.9l1-6.4h11.9l-4.4,27.4h-7Z"/>
+            <path class="st0" d="M284.2,72.6l1-6.4h23.3l-19.6-36.5h7.6l9.7,18.2c6.8-2.6,7.7-8.5,9-13l1.7-5.3h7.3l-2.3,7.2c-3.1,9.7-6.3,13.4-13.2,15.5l7.9,14.9-.8,5.2h-31.5Z"/>
+            <path class="st0" d="M325.8,71.9l1-6.4c1.6,1.1,3.5,1.6,5.7,1.6,3.5,0,5.9-1.3,6.8-6.9l3.7-24h-10.1l1-6.4h16.9l-5,31.7c-1.3,8.4-6,11.9-13,11.9s-5-.5-7.1-1.5Z"/>
+            <path class="st0" d="M362.1,57.2l3.4-21.1h-4.9l1-6.4h11.9l-4.4,27.4h-7Z"/>
+            <path class="st0" d="M375,72.6l2.6-8.3c2.6-8.2,5.5-14,14.2-16.4l-9.8-18.2h8.2l10.2,18.8c8.1-2.4,9.1-8.8,10.5-13.5l1.7-5.3h7.4l-2.1,6.4c-2.8,8.8-5.7,14.4-15,16.8l10.7,19.7h-8.1l-11.1-20.3c-7.6,2.6-8.8,9-10.2,13.2l-2.1,7.1h-7Z"/>
+            <path class="st0" d="M423.4,72.6l3.6-22.7h6.9l-3.6,22.7h-6.9ZM451,72.6l4.2-26.7c.2-1,.2-2,.2-2.9,0-4.4-2.1-6.9-6.8-6.9h-19.5l1.1-6.4h20.7c7.4,0,11.6,4.1,11.6,11.5s-.2,2.8-.4,4.5l-4.3,26.8h-6.9Z"/>
+          </g>
+          <path class="st1" d="M575.6,172.5l.4-53.5-43.2,36.8-3.8-1.7-.4-27.7-33.1,12.3-3.1-2.2,1.5-103,3.2-2.1,30.2,12.8-.4-26.8,3.8-1.8,45.8,37.6.3-50.7,4.4-.9,23.9,56.3L630.2,0l4.4.9-.3,50.7,46.3-37,3.7,1.9-.8,26.8,30.4-12.4,3.2,2.1.2,103-3.1,2.1-33-12.7-.8,27.7-3.8,1.7-42.7-37.3-.4,53.5-4.4.8-23.7-58.3-25.3,59.9-4.4-.9ZM580.6,114.1l-.3,47,23-54.4h4.2s21.5,52.8,21.5,52.8l.3-47,3.8-1.7,42.8,37.4,1.7-58.1h4.6c0,.1-.8,30.5-.8,30.5l31.3,12.1-.2-96.2-30.5,12.4-3.2-2.2.7-25.4-45.1,36.1-.4,26.9h-4.6s.5-72.2.5-72.2l-22.8,52.5h-4.2s-21.7-51-21.7-51l-.5,72.3h-4.6s0-27,0-27l-44.6-36.7.4,25.4-3.2,2.2-30.3-12.8-1.4,96.2,31.5-11.7-.4-30.4h4.6c0,0,.9,58,.9,58l43.3-36.9,3.8,1.8Z"/>
+        </svg>
+      </div>
+
+      <!-- Spacer -->
+      <div class="nav-spacer"></div>
+
+      <!-- אודות -->
+      <div class="nav-item nav-label">אודות</div>
+
+      <!-- אינדקס -->
+      <div class="nav-item nav-label">אינדקס</div>
+
+      <!-- Search -->
+      <div class="nav-item nav-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#e5e7e5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="10.5" cy="10.5" r="7"/>
+          <line x1="16" y1="16" x2="21" y2="21"/>
+        </svg>
+        <span style="color:#e5e7e5;font-size:18px;font-weight:400;">חיפוש</span>
+      </div>
+    </nav>
+
+    <!-- CONTENT AREA -->
+    <div id="content-wrapper">
+
+      <div id="content-frame">
+        <div class="tool-canvas-area">
+          <div id="art-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 148.2 157.3" width="100%" height="100%">
+              <path fill="#0a6c2f" d="M137.4,128.1l-25.1,11.1-9.6,4.2c-8.1,3.6-15.2,8.9-23,13.2s-2.8,1-4.3.2l-23.4-12.9-10.7-4.4-23.4-8.4c-1-.4-2.9-1.3-3.1-2.5l-5.8-30.6c-1.2-6.5-4.8-5.9-7.9-9.3L0,54.3c0-.7.9-2,1.5-2.3l14.3-9c2-1.2,2.9-3.9,2.4-6.2l-2.2-11.7c-.2-1.1.4-2.6,1.3-3.3L41.4,1.1c1.3-1.1,2.7-1.3,4.3-.8l28,9.8c1.7.6,5,1.4,6.6.7L102.9.7c1.8-.8,3.3-1,5,.2l25.4,18.5c.7.5,1.9,2,1.8,2.8l-1.2,12.2c-.2,2.5,1,4.8,3,5.9l9.9,5.8c.7.4,1.3,2,1.3,2.9v33.6c-1.7,2.6-5,3.2-6.1,4.8-1.1,1.5,1,3.7.7,5.6l-3.8,32.2c-.1.9-.7,2.4-1.6,2.9ZM47.3,42.4c2.8,1.5,5.4,1.5,7.9,0l11.8-7.1c2.4-1.4,3.7-4.2,4-6.9l1.5-13.5c0-.7.5-2,.3-2.6s-1.1-1.3-1.8-1.5L46.6,2.2c-1.7-.6-4-.2-5.4,1l-21.3,18.3c-1.4,1.2-2.5,3.3-2.1,5.2l1.8,9.5c.1.6.9,1.6,1.4,1.9s2.1.3,2.6,0l5.3-3.3c.7-.4,2.4-.9,3.1-.6l15.4,8.1ZM114.8,29.8c1.4-.8,3-.5,4.1.2l9.4,5.4c.6.3,2.1.5,2.7.3s1.5-1.5,1.6-2.1l.9-9.1c.2-1.7-.9-3.8-2.3-4.8L108.8,3.4c-1.7-1.3-3.8-1.9-6-1l-21.9,9.8c-1.6.7-2.5,3.4-2.2,5l2.5,13.3c1.1,5.7,3.9,7.9,9.5,10.3s4.4.4,6.2-.7l17.9-10.3ZM77.5,33.3c1.8.4,2.6-1.6,2.4-2.8l-2.5-12.7c-.1-.6-1.2-1.7-1.8-1.7s-1.8,1-1.8,1.7l-1.1,11.4c.6,1.7,3.1,3.7,4.9,4.1ZM109.7,65.4l17.5-7.8c1.3-.6,3.1-2.4,3.2-3.7l1.1-9c.3-2.3,0-5.7-2.3-7l-9.6-5.7c-1.9-1.1-4.1-1-6,0l-15.3,8.9c-.6.3-1.3,1.5-1.3,2.2s.8,1.8,1.3,2.1l5.2,3c.7.4,1.8,2,1.8,2.8v11.8c0,.7.8,2,1.3,2.4s2.1.4,2.9,0ZM78.7,50.5c3.4-2.5,4.4-5.5,3.1-9.2-1.6-4.6-5.5-7.7-7.9-6.9s-3.2,9-3.2,13.7c0,1.8,1.8,3.6,3.1,3.9s3.5-.4,4.9-1.5ZM42.4,59.9v-9.2c1.9-2.4,5-2.9,5-5.1,0-.8-.9-1.9-1.6-2.3l-11.5-6.1c-1.9-1-4.1-1.4-6-.2l-4.4,2.8c-1.9,1.2-3,3.7-2.5,6l1.7,9.3c.3,1.7,1.9,3.5,3.5,4l12.4,4.3c2.1.7,3.4-1.6,3.4-3.5ZM66.1,60.8c1.7-.8,3.8-2.7,5.1-4,1.6-1.6,1.2-3.8-.6-4.9-1.1-.7-1.6-2.3-1.5-3.7l.9-8.8c0-.6-.7-1.8-1.2-2.1s-1.8-.2-2.3.1l-9.4,5.6c-.8.5-1.7,1.7-1.5,2.4.6,2.8,5.4,3.1,7,5.6s-.7,11.7,3.7,9.7ZM89.1,43.2c0-1.9-3.2-3.5-4.6-2.5s-.9,1.7-.8,2.3c.2,1.6,1.4,2.8,2.7,2.8s2.7-.8,2.7-2.6ZM115,70.2l19.6,14.6c2.8,2.1,5.4,1.8,8.3.2s4.2-3.4,4.2-6.7v-26.2c0-3.2-1.6-5.3-4.3-6.7l-6.8-3.6c-1.2-.6-3,1.3-3.1,2.5l-.9,9.5c-.2,2.3-.8,3.6-3,4.5l-18.9,8.4c-1.3.6-2.8,1.8-3.3,3.1-.2.5.9,1.8,1.4,1.6l1.9-.6c1.1-.3,3.3-1.9,4.9-.7ZM42,70.3c1-2-1.1-4.7-3.5-5.5l-14.1-4.9c-1.3-.5-2.2-1.8-2.4-3.1l-2-10.3c-.3-1.7-2.5-2.6-3.9-1.8l-11.9,7.5c-1.9,1.2-2.8,3.3-2.7,5.5l.9,26.5c.1,3,1,5.2,3.8,6.5,2.2,1,4.9,1.2,7-.6l20.8-17.8c3.4-2.9,6.7.8,8-1.8ZM96.2,68.8c1.3,1,3.8,1,5.1.2,3.9-2.3,2.9-8.3,2.8-13.8s0-4.8-2-5.9l-6.1-3.4c-3.4-1.9-8.6.1-9.2,4.3-.8,5.1-.5,11.2,3.2,14l6.2,4.6ZM55.6,68.8c2.5,0,4.4-2.3,5.4-4.3,1.2-2.6,1-5.9.9-8.7s-2.2-5.1-5-6.6c-3.3-1.8-6.3-2.4-9.7-.2s-3.3,2.5-3.3,4.6v6.9c-.1,3.6,2.3,5.8,5.6,6.7,1.9.5,4.1,1.7,6.2,1.7ZM84.6,50.2c-1.1-2.3-6.7,1.6-6.3,4.1.3,2,2.4,3.4,4.2,4.1,2.6.9,3.7-4.6,2.1-8.2ZM76.2,85.5c4.7-1,8.8-3.4,9-7.6.2-4.4.4-8.9-.4-13.2-.7-3.8-7.8-9.3-11-7.6s-3.1,2.2-4.6,3.4c-5.7,4.9-5.9,7.2-5.4,15,.2,2.7,1.3,4.9,3.9,5.8,1.8.6,2.8,2.1,3.7,3.8.9,1.7,3.2.7,4.8.3ZM100.3,75.3c2-.9,3.4-2.7,2.5-3.8-1.2-1.5-3.3,1.6-7.1-1.1l-5.6-4.1c-.5-.4-1.9-.4-2.4-.1s-1.3,1.4-1.3,2v9c0,.7.8,2,1.3,2.3s2,.4,2.5.2l9.9-4.3ZM60.7,69.3c-2.1-.3-3.5,2.1-5.5,1.4l-7.5-2.7c-1.4-.5-3.4.2-3.5,2s1.5,3.7,3.1,4.2l11.6,4.1c1,.3,3.2-.6,3.3-1.6.4-3.4.3-7.2-1.5-7.5ZM119.3,98.6l14-8.1c.5-.3,1.4-1.4,1.5-2s-.4-2-.9-2.3l-18.5-13.7c-2.2-1.6-5.7.2-7.3,1.5s-2.7,4.6-2.2,7.2c1.1,6.2-3.9,5.9-4.3,8.5s.6,1.9,1.1,2.2l11.4,6.6c1.5.9,3.6,1.1,5.3.1ZM36.3,103.1l13-8.1c.7-.4,1.6-1.8,1.5-2.5-.2-2.5-5.4-3.3-7.9-6.4l-.4-8.8c0-1.8-1.9-3.6-3.2-4.1-1.9-.8-3.9-.2-5.5,1.2l-19.3,16.5c-1.3,1.1-1.1,3.4.4,4.3l15.7,8.4c1.8,1,4,.7,5.8-.4ZM61.9,86.1c1.4-2-.3-5-2.3-5.8l-11.5-4.3c-.8-.3-2.6,0-3.2.6-1.6,1.7-1.2,7.5.3,9.1,2.3,2.3,5.5,4.2,8.7,4.6,2.9.3,6.3-1.7,7.9-4.2ZM102.9,85.5c1.8-1.9,1.9-5,1.1-7.3-.5-1.3-2.2-1.9-3.4-1.4l-9.4,4c-.7.3-1.9,1.8-1.7,2.6.4,2.1,8.5,7.4,13.4,2.1ZM69.1,85c-.7-1.2-2.1-2.3-3.5-1.6-1,.5-1.4,2.6-1.8,3.9l-4.5,3.3c-.4.3-.8,1.7-.5,2.1,1.6,2.5,12.9-3.1,10.4-7.8ZM93.6,90.4c.1-.5-.2-1.8-.7-2.2-3.7-2.7-9.2-5.2-10.3-2.7-1.6,3.6,10.2,8.7,11,4.9ZM77.2,87.6c-.9-.3-2.6.2-3.2.8-1.6,1.8-2,3.8-1.4,6l1.4,5.2c.2.6,1.5,1.5,2,1.3,3.1-.6,5.2-12.1,1.2-13.4ZM87,93.9c0-2.5-3.2-3.7-5-2.6s-2.2,4.7-.3,5.8c1.8,1,5.2-1.1,5.3-3.2ZM108.5,104.4v15.2s.3,14.7.3,14.7c0,.9.6,2.2,1.3,2.7s2,.4,2.9,0l20.8-9c2.1-.9,3.9-2.5,4.1-4.9l3.4-29c.1-1.2-1-2.9-1.9-3.3s-3-.4-3.8,0l-16.5,9.5c-1.7,1-3.1.9-4.8,0l-13.8-8c-1.5-.9-4-.9-5.2.4s.3,2.6,1.2,3.1l10.4,5.8c.6.3,1.6,1.9,1.6,2.6ZM71.4,98.3c.5-1.6,0-5-1.5-5.8-2.1-1.3-5.6.8-5.7,3s2.2,2.7,3.5,3.4c1.1.6,3.1,1.4,3.8-.6ZM20,130.2l21.9,7.7c.7.3,2.3,0,2.7-.5.4-.4,1-1.6,1-2.2v-16.6c0,0-.3-15.1-.3-15.1l8-4.9c1-.6,2.9-1.6,2.4-3.2-.3-1-2.9-.8-3.9-.2l-17.1,10.5c-.9.5-2.3.4-3.3,0l-17.7-9.4c-.8,0-2.2,0-2.6.5s-.5,1.2-.6,1.9l5.1,27.4c.7,1.9,2.2,3.3,4.3,4.1ZM107.4,135v-18.2c0,0-.4-9.5-.4-9.5,0-2.1-1-4.2-2.9-5.2l-9.4-5.3c-1.6-.9-4.2-1.3-5.9-.5-4.5,2-9.2,4.9-9.5,9.4l-.8,9.8c-.1,1.8-.3,4.5,1.4,5.7l22.2,16.6c.9.7,2.9.9,3.7.5s1.6-2,1.5-3.2ZM52.2,137.9l20-17.1c.8-.7,2.2-2.4,2.2-3.4,0-4,0-7.9-1.4-11.4-1.4-3.5-5.1-5-7.9-6.7-3-1.9-6-2.2-9.1-.3l-7.1,4.3c-.9.5-2.1,2.5-2,3.6v19c.1,0,.3,10.6.3,10.6,0,.8,1.3,2.3,2.1,2.5s2.2-.3,3-1ZM80.2,154.6l19.7-11.7c.6-.4,1.4-1.6,1.5-2.2s-.6-2-1.2-2.5l-21.7-16.1c-1.8-1.4-4.3-1.2-5.9.2l-18.9,16.2c-.6.5-1.2,1.7-1.2,2.3s.7,2,1.2,2.3l21.2,11.9c1.4.8,3.6.7,5.1-.3Z"/>
+            </svg>
+          </div>
+          <div id="apple-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 146.6 195.2" width="100%" height="100%">
+              <defs><style>.apl{fill:none;stroke:#0a6c2f;stroke-width:2.5;stroke-miterlimit:10;}</style></defs>
+              <ellipse class="apl" cx="38.7" cy="117.4" rx="38.2" ry="76.4"/>
+              <ellipse class="apl" cx="51.3" cy="116.7" rx="24.7" ry="78"/>
+              <ellipse class="apl" cx="65.6" cy="115" rx="11.3" ry="78"/>
+              <ellipse class="apl" cx="80.7" cy="115.6" rx="12" ry="78"/>
+              <ellipse class="apl" cx="95.1" cy="115.8" rx="17.5" ry="77.1"/>
+              <ellipse class="apl" cx="114.7" cy="115.6" rx="31.4" ry="77.1"/>
+              <circle class="apl" cx="17.1" cy="109" r="5.3"/>
+              <circle class="apl" cx="45" cy="161.6" r="5.3"/>
+              <circle class="apl" cx="74.4" cy="5.8" r="5.3"/>
+            </svg>
+          </div>
+          <div id="art-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 148.2 157.3" width="100%" height="100%">
+              <defs><style>.art0{fill:#0a6c2f;}</style></defs>
+              <path class="art0" d="M137.4,128.1l-25.1,11.1-9.6,4.2c-8.1,3.6-15.2,8.9-23,13.2s-2.8,1-4.3.2l-23.4-12.9-10.7-4.4-23.4-8.4c-1-.4-2.9-1.3-3.1-2.5l-5.8-30.6c-1.2-6.5-4.8-5.9-7.9-9.3L0,54.3c0-.7.9-2,1.5-2.3l14.3-9c2-1.2,2.9-3.9,2.4-6.2l-2.2-11.7c-.2-1.1.4-2.6,1.3-3.3L41.4,1.1c1.3-1.1,2.7-1.3,4.3-.8l28,9.8c1.7.6,5,1.4,6.6.7L102.9.7c1.8-.8,3.3-1,5,.2l25.4,18.5c.7.5,1.9,2,1.8,2.8l-1.2,12.2c-.2,2.5,1,4.8,3,5.9l9.9,5.8c.7.4,1.3,2,1.3,2.9v33.6c-1.7,2.6-5,3.2-6.1,4.8-1.1,1.5,1,3.7.7,5.6l-3.8,32.2c-.1.9-.7,2.4-1.6,2.9ZM47.3,42.4c2.8,1.5,5.4,1.5,7.9,0l11.8-7.1c2.4-1.4,3.7-4.2,4-6.9l1.5-13.5c0-.7.5-2,.3-2.6s-1.1-1.3-1.8-1.5L46.6,2.2c-1.7-.6-4-.2-5.4,1l-21.3,18.3c-1.4,1.2-2.5,3.3-2.1,5.2l1.8,9.5c.1.6.9,1.6,1.4,1.9s2.1.3,2.6,0l5.3-3.3c.7-.4,2.4-.9,3.1-.6l15.4,8.1ZM114.8,29.8c1.4-.8,3-.5,4.1.2l9.4,5.4c.6.3,2.1.5,2.7.3s1.5-1.5,1.6-2.1l.9-9.1c.2-1.7-.9-3.8-2.3-4.8L108.8,3.4c-1.7-1.3-3.8-1.9-6-1l-21.9,9.8c-1.6.7-2.5,3.4-2.2,5l2.5,13.3c1.1,5.7,3.9,7.9,9.5,10.3s4.4.4,6.2-.7l17.9-10.3ZM77.5,33.3c1.8.4,2.6-1.6,2.4-2.8l-2.5-12.7c-.1-.6-1.2-1.7-1.8-1.7s-1.8,1-1.8,1.7l-1.1,11.4c.6,1.7,3.1,3.7,4.9,4.1ZM109.7,65.4l17.5-7.8c1.3-.6,3.1-2.4,3.2-3.7l1.1-9c.3-2.3,0-5.7-2.3-7l-9.6-5.7c-1.9-1.1-4.1-1-6,0l-15.3,8.9c-.6.3-1.3,1.5-1.3,2.2s.8,1.8,1.3,2.1l5.2,3c.7.4,1.8,2,1.8,2.8v11.8c0,.7.8,2,1.3,2.4s2.1.4,2.9,0ZM78.7,50.5c3.4-2.5,4.4-5.5,3.1-9.2-1.6-4.6-5.5-7.7-7.9-6.9s-3.2,9-3.2,13.7c0,1.8,1.8,3.6,3.1,3.9s3.5-.4,4.9-1.5ZM42.4,59.9v-9.2c1.9-2.4,5-2.9,5-5.1,0-.8-.9-1.9-1.6-2.3l-11.5-6.1c-1.9-1-4.1-1.4-6-.2l-4.4,2.8c-1.9,1.2-3,3.7-2.5,6l1.7,9.3c.3,1.7,1.9,3.5,3.5,4l12.4,4.3c2.1.7,3.4-1.6,3.4-3.5ZM66.1,60.8c1.7-.8,3.8-2.7,5.1-4,1.6-1.6,1.2-3.8-.6-4.9-1.1-.7-1.6-2.3-1.5-3.7l.9-8.8c0-.6-.7-1.8-1.2-2.1s-1.8-.2-2.3.1l-9.4,5.6c-.8.5-1.7,1.7-1.5,2.4.6,2.8,5.4,3.1,7,5.6s-.7,11.7,3.7,9.7ZM89.1,43.2c0-1.9-3.2-3.5-4.6-2.5s-.9,1.7-.8,2.3c.2,1.6,1.4,2.8,2.7,2.8s2.7-.8,2.7-2.6ZM115,70.2l19.6,14.6c2.8,2.1,5.4,1.8,8.3.2s4.2-3.4,4.2-6.7v-26.2c0-3.2-1.6-5.3-4.3-6.7l-6.8-3.6c-1.2-.6-3,1.3-3.1,2.5l-.9,9.5c-.2,2.3-.8,3.6-3,4.5l-18.9,8.4c-1.3.6-2.8,1.8-3.3,3.1-.2.5.9,1.8,1.4,1.6l1.9-.6c1.1-.3,3.3-1.9,4.9-.7ZM42,70.3c1-2-1.1-4.7-3.5-5.5l-14.1-4.9c-1.3-.5-2.2-1.8-2.4-3.1l-2-10.3c-.3-1.7-2.5-2.6-3.9-1.8l-11.9,7.5c-1.9,1.2-2.8,3.3-2.7,5.5l.9,26.5c.1,3,1,5.2,3.8,6.5,2.2,1,4.9,1.2,7-.6l20.8-17.8c3.4-2.9,6.7.8,8-1.8ZM96.2,68.8c1.3,1,3.8,1,5.1.2,3.9-2.3,2.9-8.3,2.8-13.8s0-4.8-2-5.9l-6.1-3.4c-3.4-1.9-8.6.1-9.2,4.3-.8,5.1-.5,11.2,3.2,14l6.2,4.6ZM55.6,68.8c2.5,0,4.4-2.3,5.4-4.3,1.2-2.6,1-5.9.9-8.7s-2.2-5.1-5-6.6c-3.3-1.8-6.3-2.4-9.7-.2s-3.3,2.5-3.3,4.6v6.9c-.1,3.6,2.3,5.8,5.6,6.7,1.9.5,4.1,1.7,6.2,1.7ZM84.6,50.2c-1.1-2.3-6.7,1.6-6.3,4.1.3,2,2.4,3.4,4.2,4.1,2.6.9,3.7-4.6,2.1-8.2ZM76.2,85.5c4.7-1,8.8-3.4,9-7.6.2-4.4.4-8.9-.4-13.2-.7-3.8-7.8-9.3-11-7.6s-3.1,2.2-4.6,3.4c-5.7,4.9-5.9,7.2-5.4,15,.2,2.7,1.3,4.9,3.9,5.8,1.8.6,2.8,2.1,3.7,3.8.9,1.7,3.2.7,4.8.3ZM100.3,75.3c2-.9,3.4-2.7,2.5-3.8-1.2-1.5-3.3,1.6-7.1-1.1l-5.6-4.1c-.5-.4-1.9-.4-2.4-.1s-1.3,1.4-1.3,2v9c0,.7.8,2,1.3,2.3s2,.4,2.5.2l9.9-4.3ZM60.7,69.3c-2.1-.3-3.5,2.1-5.5,1.4l-7.5-2.7c-1.4-.5-3.4.2-3.5,2s1.5,3.7,3.1,4.2l11.6,4.1c1,.3,3.2-.6,3.3-1.6.4-3.4.3-7.2-1.5-7.5ZM119.3,98.6l14-8.1c.5-.3,1.4-1.4,1.5-2s-.4-2-.9-2.3l-18.5-13.7c-2.2-1.6-5.7.2-7.3,1.5s-2.7,4.6-2.2,7.2c1.1,6.2-3.9,5.9-4.3,8.5s.6,1.9,1.1,2.2l11.4,6.6c1.5.9,3.6,1.1,5.3.1ZM36.3,103.1l13-8.1c.7-.4,1.6-1.8,1.5-2.5-.2-2.5-5.4-3.3-7.9-6.4l-.4-8.8c0-1.8-1.9-3.6-3.2-4.1-1.9-.8-3.9-.2-5.5,1.2l-19.3,16.5c-1.3,1.1-1.1,3.4.4,4.3l15.7,8.4c1.8,1,4,.7,5.8-.4ZM61.9,86.1c1.4-2-.3-5-2.3-5.8l-11.5-4.3c-.8-.3-2.6,0-3.2.6-1.6,1.7-1.2,7.5.3,9.1,2.3,2.3,5.5,4.2,8.7,4.6,2.9.3,6.3-1.7,7.9-4.2ZM102.9,85.5c1.8-1.9,1.9-5,1.1-7.3-.5-1.3-2.2-1.9-3.4-1.4l-9.4,4c-.7.3-1.9,1.8-1.7,2.6.4,2.1,8.5,7.4,13.4,2.1ZM69.1,85c-.7-1.2-2.1-2.3-3.5-1.6-1,.5-1.4,2.6-1.8,3.9l-4.5,3.3c-.4.3-.8,1.7-.5,2.1,1.6,2.5,12.9-3.1,10.4-7.8ZM93.6,90.4c.1-.5-.2-1.8-.7-2.2-3.7-2.7-9.2-5.2-10.3-2.7-1.6,3.6,10.2,8.7,11,4.9ZM77.2,87.6c-.9-.3-2.6.2-3.2.8-1.6,1.8-2,3.8-1.4,6l1.4,5.2c.2.6,1.5,1.5,2,1.3,3.1-.6,5.2-12.1,1.2-13.4ZM87,93.9c0-2.5-3.2-3.7-5-2.6s-2.2,4.7-.3,5.8c1.8,1,5.2-1.1,5.3-3.2ZM108.5,104.4v15.2s.3,14.7.3,14.7c0,.9.6,2.2,1.3,2.7s2,.4,2.9,0l20.8-9c2.1-.9,3.9-2.5,4.1-4.9l3.4-29c.1-1.2-1-2.9-1.9-3.3s-3-.4-3.8,0l-16.5,9.5c-1.7,1-3.1.9-4.8,0l-13.8-8c-1.5-.9-4-.9-5.2.4s.3,2.6,1.2,3.1l10.4,5.8c.6.3,1.6,1.9,1.6,2.6ZM71.4,98.3c.5-1.6,0-5-1.5-5.8-2.1-1.3-5.6.8-5.7,3s2.2,2.7,3.5,3.4c1.1.6,3.1,1.4,3.8-.6ZM20,130.2l21.9,7.7c.7.3,2.3,0,2.7-.5.4-.4,1-1.6,1-2.2v-16.6c0,0-.3-15.1-.3-15.1l8-4.9c1-.6,2.9-1.6,2.4-3.2-.3-1-2.9-.8-3.9-.2l-17.1,10.5c-.9.5-2.3.4-3.3,0l-17.7-9.4c-.8,0-2.2,0-2.6.5s-.5,1.2-.6,1.9l5.1,27.4c.7,1.9,2.2,3.3,4.3,4.1ZM107.4,135v-18.2c0,0-.4-9.5-.4-9.5,0-2.1-1-4.2-2.9-5.2l-9.4-5.3c-1.6-.9-4.2-1.3-5.9-.5-4.5,2-9.2,4.9-9.5,9.4l-.8,9.8c-.1,1.8-.3,4.5,1.4,5.7l22.2,16.6c.9.7,2.9.9,3.7.5s1.6-2,1.5-3.2ZM52.2,137.9l20-17.1c.8-.7,2.2-2.4,2.2-3.4,0-4,0-7.9-1.4-11.4-1.4-3.5-5.1-5-7.9-6.7-3-1.9-6-2.2-9.1-.3l-7.1,4.3c-.9.5-2.1,2.5-2,3.6v19c.1,0,.3,10.6.3,10.6,0,.8,1.3,2.3,2.1,2.5s2.2-.3,3-1ZM80.2,154.6l19.7-11.7c.6-.4,1.4-1.6,1.5-2.2s-.6-2-1.2-2.5l-21.7-16.1c-1.8-1.4-4.3-1.2-5.9.2l-18.9,16.2c-.6.5-1.2,1.7-1.2,2.3s.7,2,1.2,2.3l21.2,11.9c1.4.8,3.6.7,5.1-.3Z"/>
+            </svg>
+          </div>
+          <div id="fantasy-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="פנטזיה_56.svg" width="100%" height="100%" style="display:block;">
+          </div>
+          <div id="tech-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="טכנולוגיה_73.svg" width="100%" height="100%" style="display:block;">
+          </div>
+          <div id="arch-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="ארכיטקטורה_56.svg" width="100%" height="100%" style="display:block;">
+          </div>
+          <div id="comm-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="תקשורת_73.svg" width="100%" height="100%" style="display:block;">
+          </div>
+          <div id="lifestyle-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="סגנון חיים_136.svg" width="100%" height="100%" style="display:block;">
+          </div>
+          <div id="urban-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="עירוניות_45.svg" width="100%" height="100%" style="display:block;">
+          </div>
+          <div id="lit-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="ספרות_89.svg" width="100%" height="100%" style="display:block;">
+          </div>
+          <div id="theory-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="תיאוריה_104.svg" width="100%" height="100%" style="display:block;">
+          </div>
+          <div id="psycho-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="פסיכואנליזה_123.svg" width="100%" height="100%" style="display:block;">
+          </div>
+          <div id="science-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="מדע-56.svg" width="100%" height="100%" style="display:block;">
+          </div>
+          <div id="lang-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="שפה_112.svg" width="100%" height="100%" style="display:block;">
+          </div>
+          <div id="tv-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="טלוויזיה_127.svg" width="100%" height="100%" style="display:block;">
+          </div>
+          <div id="history-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="הסטוריה_127.svg" width="100%" height="100%" style="display:block;">
+          </div>
+          <div id="gender-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="מגדר_67.svg" width="100%" height="100%" style="display:block;">
+          </div>
+          <div id="alt-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="אלטרנטיבה_99.svg" width="100%" height="100%" style="display:block;">
+          </div>
+          <div id="thought-overlay" style="display:none;position:absolute;pointer-events:none;">
+            <img src="מחשבה_200.svg" width="100%" height="100%" style="display:block;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Scale the 1512×982 shell to fit the browser viewport
+    window._shellScale = 1;
+    function scaleShell() {
+      var shell = document.getElementById('shell');
+      var scaleX = window.innerWidth  / 1512;
+      var scaleY = window.innerHeight / 982;
+      var scale  = Math.min(scaleX, scaleY);
+      window._shellScale = scale;
+      var offsetX = (window.innerWidth  - 1512 * scale) / 2;
+      var offsetY = (window.innerHeight - 982  * scale) / 2;
+      shell.style.transform = 'translate(' + offsetX + 'px,' + offsetY + 'px) scale(' + scale + ')';
+    }
+    scaleShell();
+    window.addEventListener('resize', scaleShell);
+
+    // Navigate to Figma prototype on click
+    document.querySelector('.tool-canvas-area').addEventListener('click', function() {
+      window.open('https://www.figma.com/proto/lK12YTkBVtZvVesX122rK5/%D7%90%D7%99%D7%A0%D7%93%D7%A7%D7%A1?node-id=1-2&viewport=226%2C1180%2C0.25&t=lVUMmazjbmNKIYz7-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=1%3A2&page-id=0%3A1', '_blank');
+    });
+
+    // Track raw mouse for corrected canvas hit-testing (p5 ignores CSS scale)
+    window._rawMouse = { x: 0, y: 0 };
+    window.addEventListener('mousemove', function(e) {
+      window._rawMouse.x = e.clientX;
+      window._rawMouse.y = e.clientY;
+    });
+  </script>
+
+  <script>
+    // Mobile perf: cap devicePixelRatio
+    (function() {
+      var _isMobile = window.innerWidth <= 768;
+      if (_isMobile) {
+        var _nativeDPR = window.devicePixelRatio || 1;
+        var _cappedDPR = Math.min(1.5, _nativeDPR);
+        Object.defineProperty(window, 'devicePixelRatio', { get: function() { return _cappedDPR; } });
+      }
+    })();
+
+    window.CanvasRuntimeAPI = (function() {
+      var _exportMode = 'auto';
+      var _exportWidth = 0;
+      var _exportHeight = 0;
+      var _bgState = { mode: 'none', color: '#ffffff', imageEl: null, imageDataURL: null, fit: 'cover' };
+      var _canvas = null;
+      var _area = document.querySelector('.tool-canvas-area');
+      var _resizeRAF = null;
+
+      function _detectCanvas() {
+        var area = document.querySelector('.tool-canvas-area');
+        if (area) {
+          var canvases = area.querySelectorAll('canvas');
+          var visible = [];
+          for (var j = 0; j < canvases.length; j++) {
+            if (canvases[j].style.display !== 'none') visible.push(canvases[j]);
+          }
+          if (visible.length >= 1) {
+            var largest = visible[0];
+            for (var i = 1; i < visible.length; i++) {
+              if (visible[i].width * visible[i].height > largest.width * largest.height) largest = visible[i];
+            }
+            _canvas = largest;
+            _area = _canvas.parentElement;
+          }
+        }
+      }
+
+      function _applyBgCSS() {
+        _detectCanvas();
+        if (!_canvas) return;
+        if (_bgState.mode === 'none') { _canvas.style.background = ''; }
+        else if (_bgState.mode === 'solid') { _canvas.style.background = _bgState.color; }
+      }
+
+      function setBackground(state) {
+        state = state || {};
+        _bgState.mode = state.mode || 'none';
+        _bgState.color = state.color || '#ffffff';
+        _applyBgCSS();
+      }
+      function getBackground() { return { mode: _bgState.mode, color: _bgState.color, fit: _bgState.fit }; }
+      function setCanvas(el) { _canvas = el; _area = el ? el.parentElement : document.querySelector('.tool-canvas-area'); }
+      function setExportDimensions(w, h) {
+        _detectCanvas();
+        _exportMode = 'fixed';
+        _exportWidth = Math.max(1, Math.round(w || 1));
+        _exportHeight = Math.max(1, Math.round(h || 1));
+        if (_canvas) { _canvas.width = _exportWidth; _canvas.height = _exportHeight; }
+        window.dispatchEvent(new Event('resize'));
+      }
+      function fitToArea() {}
+      function getExportDimensions() {
+        if (_exportMode === 'fixed') return { width: _exportWidth, height: _exportHeight, mode: 'fixed' };
+        _detectCanvas();
+        return { width: _canvas ? _canvas.width : 0, height: _canvas ? _canvas.height : 0, mode: 'auto' };
+      }
+      function isFixedExportMode() { return _exportMode === 'fixed'; }
+      function getMousePos(event) {
+        _detectCanvas();
+        if (!_canvas) return { x: 0, y: 0 };
+        var rect = _canvas.getBoundingClientRect();
+        var scaleX = _canvas.width / rect.width;
+        var scaleY = _canvas.height / rect.height;
+        var clientX = event.clientX, clientY = event.clientY;
+        return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+      }
+      function drawImage(ctx, img, x, y, w, h, fit) {
+        if (!img || !img.width || !img.height) return;
+        ctx.drawImage(img, x, y, w, h);
+      }
+      setTimeout(function() { _detectCanvas(); if (_bgState.mode !== 'none') _applyBgCSS(); }, 500);
+      return { setCanvas, setBackground, getBackground, setExportDimensions, fitToArea, getExportDimensions, isFixedExportMode, getMousePos, drawImage };
+    })();
+
+    window.ChatoolyCanvas = window.CanvasRuntimeAPI;
+
+    (function() {
+      var srcDesc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+      if (srcDesc && srcDesc.set) {
+        Object.defineProperty(HTMLImageElement.prototype, 'src', {
+          get: srcDesc.get,
+          set: function(val) {
+            if (val && typeof val === 'string' && !val.startsWith('data:') && !this.crossOrigin) this.crossOrigin = 'anonymous';
+            srcDesc.set.call(this, val);
+          },
+          configurable: true, enumerable: true
+        });
+      }
+    })();
+
+    window.loadImage = function(src, callback) {
+      var img = new Image();
+      if (src && typeof src === 'string' && !src.startsWith('data:')) img.crossOrigin = 'anonymous';
+      img.onload = function() { if (callback) callback(img); };
+      img.onerror = function() { console.error('Failed to load image:', src); };
+      img.src = src;
+      return img;
+    };
+  </script>
+
+  <script>
+    var controls = (function() {
+      var _v = {
+        "connections":"אידיאולוגיה: אלטרנטיבה, דת, תרבות, פוליטיקה וחברה , אמנות\nאסתטיקה: אדריכלות, דת, במה, גוף , חיי יום יום, טכנולוגיה\nחברה ופוליטיקה: תרבות, מהפיכה, מודרניזם, מחשבה, מיניות, סביבה, קולנוע, מרחב ציבורי\nקהילה: תיאוריה, תקשורת המונים, פסיכואנליזה, במה",
+        "textSize":23,"nodeCount":60,"showGrid":true,"gridSize":100,"gridColor":"#393334","gridOpacity":40,
+        "showPreviewBox":true,"previewCount":134,"showCircle":true,"circlePadding":23,"circleWeight":2,
+        "circleDashSize":8,"lineWeight":1.5,"dotSize":7,"gapSize":15,"topicFilter":100,
+        "textColor":"#393334","hoverColor":"#0A6C2F","lineColor":"#0A6C2F","bgColor":"#D9D9D9",
+        "textBgColor":"#FFFFFF00","fontFamily":{"family":"SimplerPro-RegularItalic","style":"italic","weight":400,"url":null},
+        "playing":true,"speed":1.5,"collisionPadding":10
+      };
+      var _defaults = JSON.parse(JSON.stringify(_v));
+      function _hexToRgb(hex) {
+        var h = String(hex || '').replace('#', '');
+        if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+        if (h.length !== 6 || !/^[0-9a-fA-F]{6}$/.test(h)) return null;
+        return { r: parseInt(h.slice(0,2),16), g: parseInt(h.slice(2,4),16), b: parseInt(h.slice(4,6),16) };
+      }
+      function _clamp(n, min, max) { return Math.min(max, Math.max(min, n)); }
+      function _hexToRgbaCss(hex, opacity0to100) {
+        var rgb = _hexToRgb(hex);
+        if (!rgb) return 'rgba(0,0,0,1)';
+        var op = opacity0to100 != null && !isNaN(Number(opacity0to100)) ? Number(opacity0to100) : 100;
+        var a = _clamp(op, 0, 100) / 100;
+        return 'rgba('+rgb.r+','+rgb.g+','+rgb.b+','+a+')';
+      }
+      var api = {
+        get: function(k) { return _v[k]; },
+        getAll: function() { return Object.assign({}, _v); },
+        getDefaults: function() { return JSON.parse(JSON.stringify(_defaults)); },
+        getColorWithAlpha: function(baseKey) { return _hexToRgbaCss(_v[baseKey], _v[baseKey+'_opacity']); },
+        set: function(k, v) { _v[k] = v; },
+        onChange: function() {},
+        onAny: function() {},
+        onAction: function() {}
+      };
+      window.ControlsAPI = api;
+      window.ChatoolyControls = api;
+      return api;
+    })();
+
+    (function() {
+      var area = document.querySelector('.tool-canvas-area');
+      var obs = new MutationObserver(function(muts) {
+        for (var i = 0; i < muts.length; i++) {
+          for (var j = 0; j < muts[i].addedNodes.length; j++) {
+            var node = muts[i].addedNodes[j];
+            if (node.tagName === 'CANVAS') {
+              if (typeof CanvasRuntimeAPI !== 'undefined') CanvasRuntimeAPI.setCanvas(node);
+              obs.disconnect();
+              return;
+            }
+          }
+        }
+      });
+      obs.observe(area, { childList: true });
+    })();
+  </script>
+
+  <script>
+    // p5.js sketch
+    {
+      const area = document.querySelector('.tool-canvas-area');
+      let nodes = [];
+      let hoveredNode = null;
+      let connectionStartTime = 0;
+      const _appleOverlay   = document.getElementById('apple-overlay');
+      const _artOverlay     = document.getElementById('art-overlay');
+      const _fantasyOverlay   = document.getElementById('fantasy-overlay');
+      const _techOverlay      = document.getElementById('tech-overlay');
+      const _archOverlay      = document.getElementById('arch-overlay');
+      const _commOverlay      = document.getElementById('comm-overlay');
+      const _lifestyleOverlay = document.getElementById('lifestyle-overlay');
+      const _urbanOverlay     = document.getElementById('urban-overlay');
+      const _litOverlay       = document.getElementById('lit-overlay');
+      const _theoryOverlay    = document.getElementById('theory-overlay');
+      const _psychoOverlay    = document.getElementById('psycho-overlay');
+      const _scienceOverlay   = document.getElementById('science-overlay');
+      const _langOverlay      = document.getElementById('lang-overlay');
+      const _tvOverlay        = document.getElementById('tv-overlay');
+      const _historyOverlay   = document.getElementById('history-overlay');
+      const _genderOverlay    = document.getElementById('gender-overlay');
+      const _altOverlay       = document.getElementById('alt-overlay');
+      const _thoughtOverlay   = document.getElementById('thought-overlay');
+
+      const TOPICS = [
+        { label: "תקשורת",        related: ["שפה","מחשבה","טכנולוגיה","ספרות","היסטוריה","פוליטיקה וחברה","תיאוריה","טלוויזיה"] },
+        { label: "שפה",            related: ["תקשורת","מחשבה","ספרות","פסיכואנליזה","תיאוריה","היסטוריה","פוליטיקה וחברה"] },
+        { label: "פסיכואנליזה",    related: ["שפה","מחשבה","ספרות","פנטזיה","מגדר","תיאוריה","היסטוריה","אמנות"] },
+        { label: "פוליטיקה וחברה", related: ["תקשורת","שפה","מחשבה","תיאוריה","היסטוריה","מגדר","סגנון חיים","עירוניות","טכנולוגיה","אלטרנטיבה","ארכיטקטורה"] },
+        { label: "סגנון חיים",     related: ["פוליטיקה וחברה","מגדר","אמנות","טכנולוגיה","אלטרנטיבה","עירוניות"] },
+        { label: "מחשבה",          related: ["תקשורת","שפה","פסיכואנליזה","תיאוריה","היסטוריה","פוליטיקה וחברה","מדע","ספרות"] },
+        { label: "טכנולוגיה",      related: ["תקשורת","מדע","פוליטיקה וחברה","סגנון חיים","עירוניות","טלוויזיה","ארכיטקטורה"] },
+        { label: "פנטזיה",         related: ["פסיכואנליזה","ספרות","אמנות","טלוויזיה","מחשבה"] },
+        { label: "מדע",            related: ["מחשבה","טכנולוגיה","תיאוריה","היסטוריה","אלטרנטיבה"] },
+        { label: "תיאוריה",        related: ["מחשבה","שפה","פסיכואנליזה","ספרות","היסטוריה","פוליטיקה וחברה","מדע","אמנות"] },
+        { label: "מגדר",           related: ["פסיכואנליזה","פוליטיקה וחברה","סגנון חיים","אמנות","ספרות","אלטרנטיבה"] },
+        { label: "ספרות",          related: ["שפה","תקשורת","פסיכואנליזה","מחשבה","תיאוריה","היסטוריה","פנטזיה","אמנות"] },
+        { label: "ארכיטקטורה",     related: ["אמנות","עירוניות","פוליטיקה וחברה","טכנולוגיה","היסטוריה","תיאוריה"] },
+        { label: "עירוניות",       related: ["ארכיטקטורה","פוליטיקה וחברה","סגנון חיים","טכנולוגיה","היסטוריה","אלטרנטיבה"] },
+        { label: "אמנות",          related: ["ספרות","פסיכואנליזה","תיאוריה","מגדר","היסטוריה","ארכיטקטורה","אלטרנטיבה","פנטזיה"] },
+        { label: "אלטרנטיבה",      related: ["פוליטיקה וחברה","מדע","מגדר","סגנון חיים","עירוניות","אמנות","תיאוריה"] },
+        { label: "היסטוריה",       related: ["מחשבה","תיאוריה","שפה","ספרות","פוליטיקה וחברה","מדע","ארכיטקטורה","עירוניות"] },
+        { label: "טלוויזיה",       related: ["תקשורת","טכנולוגיה","סגנון חיים","פנטזיה","פוליטיקה וחברה"] }
+      ];
+
+      class Node {
+        constructor(id, data) {
+          this.id = id;
+          this.label = data.label;
+          this.related = data.related;
+          this.init();
+        }
+        init() {
+          this.x = random(width * 0.05, width * 0.95);
+          this.y = random(height * 0.05, height * 0.95);
+          const angle = random(TWO_PI);
+          this.dirX = cos(angle);
+          this.dirY = sin(angle);
+          this.currentScale = 1;
+          this.targetScale = 1;
+          this.currentStyle = 1;
+          this.targetStyle = 1;
+        }
+        isRelevant(hovered) {
+          if (!hovered) return false;
+          if (this === hovered) return true;
+          // Same topic (duplicate copy)
+          if (this.label === hovered.label) return true;
+          // Bidirectional: A→B or B→A
+          return hovered.related.includes(this.label) || this.related.includes(hovered.label);
+        }
+        update(hovered) {
+          const speed = controls.get('speed') * 0.5;
+          const isPlaying = controls.get('playing');
+          const relevant = this.isRelevant(hovered);
+          if (isPlaying && !relevant) {
+            this.x += this.dirX * speed;
+            this.y += this.dirY * speed;
+            const margin = 20;
+            if (this.x < margin || this.x > width - margin) {
+              this.dirX *= -1;
+              this.x = constrain(this.x, margin, width - margin);
+            }
+            if (this.y < margin || this.y > height - margin) {
+              this.dirY *= -1;
+              this.y = constrain(this.y, margin, height - margin);
+            }
+          }
+          this.currentScale = lerp(this.currentScale, this.targetScale, 0.2);
+          this.currentStyle = lerp(this.currentStyle, this.targetStyle, 0.2);
+        }
+        getRadius() {
+          const baseTextSize = controls.get('textSize');
+          const size = baseTextSize * this.currentScale;
+          textFont('SimplerPro-Regular');
+          textStyle(NORMAL);
+          textSize(size);
+          const tw = textWidth(this.label);
+          return (tw + size) / 4;
+        }
+        draw(layer, hovered) {
+          const baseTextSize = controls.get('textSize');
+          const size = baseTextSize * this.currentScale;
+          const relevant = this.isRelevant(hovered);
+          if (this.label) {
+            let col = relevant ? controls.get('hoverColor') : controls.get('textColor');
+            if (relevant) {
+              textFont('SimplerPro-BoldItalic');
+              textStyle(ITALIC);
+            } else {
+              textFont('SimplerPro-Regular');
+              textStyle(NORMAL);
+            }
+            textSize(size);
+            textAlign(CENTER, CENTER);
+            const tw = textWidth(this.label);
+            const th = size;
+            const padding = 4;
+            if (layer === 'background') {
+              if (relevant) {
+                noStroke();
+                fill(controls.get('textBgColor'));
+                rectMode(CENTER);
+                rect(this.x, this.y, tw + padding * 2, th + padding, 4);
+              }
+            } else if (layer === 'text') {
+              let c = color(col);
+              c.setAlpha(this.currentStyle * 255);
+              fill(c);
+              text(this.label, this.x, this.y);
+            }
+          }
+        }
+      }
+
+      function resolveCollisions() {
+        const padding = controls.get('collisionPadding');
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            let n1 = nodes[i], n2 = nodes[j];
+            let dx = n2.x - n1.x, dy = n2.y - n1.y;
+            let distance = sqrt(dx*dx + dy*dy);
+            let r1 = n1.getRadius(), r2 = n2.getRadius();
+            let minDist = r1 + r2 + padding;
+            if (distance < minDist && distance > 0) {
+              let overlap = minDist - distance;
+              let nx = dx/distance, ny = dy/distance;
+              let m1 = n1.targetScale > 1 ? 2 : 1;
+              let m2 = n2.targetScale > 1 ? 2 : 1;
+              let totalM = m1 + m2;
+              n1.x -= nx * overlap * (m2/totalM);
+              n1.y -= ny * overlap * (m2/totalM);
+              n2.x += nx * overlap * (m1/totalM);
+              n2.y += ny * overlap * (m1/totalM);
+              if (controls.get('playing')) {
+                n1.dirX -= nx * 0.05; n1.dirY -= ny * 0.05;
+                n2.dirX += nx * 0.05; n2.dirY += ny * 0.05;
+                let d1 = sqrt(n1.dirX*n1.dirX + n1.dirY*n1.dirY);
+                let d2 = sqrt(n2.dirX*n2.dirX + n2.dirY*n2.dirY);
+                if (d1 > 0) { n1.dirX /= d1; n1.dirY /= d1; }
+                if (d2 > 0) { n2.dirX /= d2; n2.dirY /= d2; }
+              }
+            }
+          }
+        }
+      }
+
+      function initNodes() {
+        nodes = [];
+        let id = 0;
+        for (let copy = 0; copy < 3; copy++) {
+          TOPICS.forEach(data => {
+            nodes.push(new Node(id++, data));
+          });
+        }
+      }
+
+      function setup() {
+        let c = createCanvas(area.clientWidth, area.clientHeight);
+        c.parent(area);
+        c.id('canvas');
+        initNodes();
+        controls.onAny((key) => {
+          if (key === 'nodeCount' || key === 'connections') initNodes();
+        });
+      }
+
+      function drawGrid() {
+        if (!controls.get('showGrid')) return;
+        const size = controls.get('gridSize');
+        const col = color(controls.get('gridColor'));
+        col.setAlpha(controls.get('gridOpacity') / 100 * 255);
+        stroke(col);
+        strokeWeight(1);
+        drawingContext.setLineDash([6, 6]);
+        for (let x = 0; x <= width; x += size) line(x, 0, x, height);
+        for (let y = 0; y <= height; y += size) line(0, y, width, y);
+        drawingContext.setLineDash([]);
+      }
+
+      function drawPreviewBox(node) {
+        const margin = 40;
+        const boxW = 240;
+        const boxH = 320;
+        const x = width - boxW - margin;
+        const y = height - boxH - margin;
+        const hColor = controls.get('hoverColor');
+        stroke(hColor);
+        strokeWeight(1.5);
+        drawingContext.setLineDash([4, 4]);
+        fill(controls.get('bgColor'));
+        rectMode(CORNER);
+        rect(x, y, boxW, boxH);
+        line(x, y + 50, x + boxW, y + 50);
+        const fontData = controls.get('fontFamily');
+        if (fontData && fontData.family) textFont(fontData.family);
+        fill(hColor);
+        noStroke();
+        const isArt       = node.label === 'אמנות';
+        const isFantasy   = node.label === 'פנטזיה';
+        const isTech      = node.label === 'טכנולוגיה';
+        const isArch      = node.label === 'ארכיטקטורה';
+        const isComm      = node.label === 'תקשורת';
+        const isLifestyle = node.label === 'סגנון חיים';
+        const isUrban     = node.label === 'עירוניות';
+        const isLit       = node.label === 'ספרות';
+        const isTheory    = node.label === 'תיאוריה';
+        const isPsycho    = node.label === 'פסיכואנליזה';
+        const isScience   = node.label === 'מדע';
+        const isLang      = node.label === 'שפה';
+        const isTv        = node.label === 'טלוויזיה';
+        const isHistory   = node.label === 'היסטוריה';
+        const isGender    = node.label === 'מגדר';
+        const isAlt       = node.label === 'אלטרנטיבה';
+        const isThought   = node.label === 'מחשבה';
+        const count   = isArt ? 103 : isFantasy ? 56 : isTech ? 73 : isArch ? 56 : isComm ? 73 : isLifestyle ? 136 : isUrban ? 45 : isLit ? 89 : isTheory ? 104 : isPsycho ? 103 : isScience ? 56 : isLang ? 112 : isTv ? 127 : isHistory ? 127 : isGender ? 67 : isAlt ? 99 : isThought ? 200 : controls.get('previewCount');
+        const overlay = isArt ? _artOverlay : isFantasy ? _fantasyOverlay : isTech ? _techOverlay : isArch ? _archOverlay : isComm ? _commOverlay : isLifestyle ? _lifestyleOverlay : isUrban ? _urbanOverlay : isLit ? _litOverlay : isTheory ? _theoryOverlay : isPsycho ? _psychoOverlay : isScience ? _scienceOverlay : isLang ? _langOverlay : isTv ? _tvOverlay : isHistory ? _historyOverlay : isGender ? _genderOverlay : isAlt ? _altOverlay : isThought ? _thoughtOverlay : _appleOverlay;
+        const aspectH = isArt ? (157.3/148.2) : isFantasy ? (165.6/150.7) : isTech ? (166.2/156.8) : isArch ? (146/145.7) : isComm ? (177.8/160.3) : isLifestyle ? (156.8/156.3) : isUrban ? (135.6/148.9) : isLit ? (160.3/149.1) : isTheory ? (158.6/123.4) : isPsycho ? (137.1/138.4) : isScience ? (134.7/158.5) : isLang ? (152.5/132.8) : isTv ? (91.3/148.2) : isHistory ? (128.1/151.3) : isGender ? (193/154.9) : isAlt ? (141.8/158.4) : isThought ? (132.3/143.3) : (195.2/146.6);
+
+        drawingContext.fillStyle = '#0A6C2F';
+        textAlign(RIGHT, CENTER);
+        drawingContext.font = 'bold 20px Heebo, sans-serif';
+        drawingContext.fillText("כמות נושאים", x + boxW - 20, y + 25);
+        textAlign(LEFT, CENTER);
+        drawingContext.font = 'bold 20px Heebo, sans-serif';
+        drawingContext.fillText(count, x + 20, y + 25);
+        drawingContext.setLineDash([]);
+
+        // Position the correct SVG overlay inside the box
+        const availH = boxH - 50;
+        const imgW   = boxW - 80;
+        const imgH   = imgW * aspectH;
+        const imgX   = x + (boxW - imgW) / 2;
+        const imgY   = y + 50 + (availH - imgH) / 2;
+        _appleOverlay.style.display   = 'none';
+        _artOverlay.style.display     = 'none';
+        _fantasyOverlay.style.display = 'none';
+        _techOverlay.style.display    = 'none';
+        _archOverlay.style.display    = 'none';
+        _commOverlay.style.display      = 'none';
+        _lifestyleOverlay.style.display = 'none';
+        _urbanOverlay.style.display     = 'none';
+        _litOverlay.style.display       = 'none';
+        _theoryOverlay.style.display    = 'none';
+        _psychoOverlay.style.display    = 'none';
+        _scienceOverlay.style.display   = 'none';
+        _langOverlay.style.display      = 'none';
+        _tvOverlay.style.display        = 'none';
+        _historyOverlay.style.display   = 'none';
+        _genderOverlay.style.display    = 'none';
+        _altOverlay.style.display       = 'none';
+        _thoughtOverlay.style.display   = 'none';
+        overlay.style.left    = (imgX / width  * 100) + '%';
+        overlay.style.top     = (imgY / height * 100) + '%';
+        overlay.style.width   = (imgW / width  * 100) + '%';
+        overlay.style.height  = (imgH / height * 100) + '%';
+        overlay.style.display = 'block';
+      }
+
+      // Returns mouse position corrected for CSS transform scale on #shell
+      function getMouseInCanvas() {
+        var canvas = document.querySelector('.tool-canvas-area canvas');
+        if (!canvas) return { x: mouseX, y: mouseY };
+        var rect = canvas.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return { x: mouseX, y: mouseY };
+        return {
+          x: (window._rawMouse.x - rect.left) * (width  / rect.width),
+          y: (window._rawMouse.y - rect.top)  * (height / rect.height)
+        };
+      }
+
+      function draw() {
+        background(controls.get('bgColor'));
+        drawGrid();
+        const textSizeVal = controls.get('textSize');
+        const lineColor = controls.getColorWithAlpha('lineColor');
+        const lineWeight = controls.get('lineWeight');
+        const dotSize = controls.get('dotSize');
+
+        const cm = getMouseInCanvas();
+
+        let prevHovered = hoveredNode;
+        hoveredNode = null;
+        for (let n of nodes) {
+          let d = dist(cm.x, cm.y, n.x, n.y);
+          if (d < textSizeVal * 1.5) { hoveredNode = n; break; }
+        }
+        if (hoveredNode && hoveredNode !== prevHovered) connectionStartTime = millis();
+
+        for (let n of nodes) {
+          if (!hoveredNode) {
+            n.targetStyle = 1; n.targetScale = 1;
+          } else {
+            if (n === hoveredNode) { n.targetStyle = 1; n.targetScale = 1.4; }
+            else if (n.isRelevant(hoveredNode)) { n.targetStyle = 1; n.targetScale = 1.1; }
+            else { n.targetStyle = 0.3; n.targetScale = 0.9; }
+          }
+          n.update(hoveredNode);
+        }
+        resolveCollisions();
+
+        if (hoveredNode) {
+          let relevantNodes = nodes.filter(n => n !== hoveredNode && n.isRelevant(hoveredNode));
+          relevantNodes.forEach((n, index) => {
+            const staggerDelay = index * 30;
+            const elapsed = millis() - connectionStartTime - staggerDelay;
+            if (elapsed > 0) {
+              const throwDuration = 150;
+              let progress = constrain(elapsed / throwDuration, 0, 1);
+              const easedProgress = 1 - Math.pow(1 - progress, 3);
+              const dx = n.x - hoveredNode.x, dy = n.y - hoveredNode.y;
+              const angle = atan2(dy, dx);
+              const getEllipseRadius = (w, h, a) => {
+                const a_val = w/2, b_val = h/2;
+                return (a_val * b_val) / sqrt(pow(b_val*cos(a),2) + pow(a_val*sin(a),2));
+              };
+              textFont('SimplerPro-BoldItalic');
+              textStyle(ITALIC);
+              const circlePadding = controls.get('circlePadding');
+              textSize(textSizeVal * hoveredNode.currentScale);
+              const twH = textWidth(hoveredNode.label) + circlePadding * 2;
+              const thH = (textSizeVal * hoveredNode.currentScale) + circlePadding * 2;
+              const dynamicGapStart = getEllipseRadius(twH, thH, angle);
+              textSize(textSizeVal * n.currentScale);
+              const twT = textWidth(n.label) + circlePadding * 2;
+              const thT = (textSizeVal * n.currentScale) + circlePadding * 2;
+              const dynamicGapEnd = getEllipseRadius(twT, thT, angle + PI);
+              const startX = hoveredNode.x + cos(angle) * dynamicGapStart;
+              const startY = hoveredNode.y + sin(angle) * dynamicGapStart;
+              const targetX = n.x + cos(angle + PI) * dynamicGapEnd;
+              const targetY = n.y + sin(angle + PI) * dynamicGapEnd;
+              const currentEndX = lerp(startX, targetX, easedProgress);
+              const currentEndY = lerp(startY, targetY, easedProgress);
+              stroke(lineColor);
+              strokeWeight(lineWeight);
+              noFill();
+              if (dotSize > 0) {
+                fill(lineColor); noStroke();
+                ellipse(startX, startY, dotSize);
+                if (progress > 0.1) ellipse(currentEndX, currentEndY, dotSize);
+              }
+              stroke(lineColor);
+              strokeWeight(lineWeight);
+              noFill();
+              drawingContext.setLineDash([6, 4]);
+              line(startX, startY, currentEndX, currentEndY);
+              drawingContext.setLineDash([]);
+            }
+          });
+
+          if (controls.get('showCircle')) {
+            const fontData = controls.get('fontFamily');
+            if (fontData && fontData.family) textFont(fontData.family);
+            textSize(textSizeVal * hoveredNode.currentScale);
+            const tw = textWidth(hoveredNode.label);
+            const th = textSizeVal * hoveredNode.currentScale;
+            const padding = controls.get('circlePadding');
+            stroke(controls.get('hoverColor'));
+            strokeWeight(controls.get('circleWeight'));
+            strokeCap(ROUND);
+            noFill();
+            const dashSize = controls.get('circleDashSize');
+            drawingContext.setLineDash([dashSize, dashSize * 1.5]);
+            ellipse(hoveredNode.x, hoveredNode.y, tw + padding * 2, th + padding * 2);
+            drawingContext.setLineDash([]);
+          }
+        }
+
+        for (let n of nodes) n.draw('background', hoveredNode);
+        for (let n of nodes) n.draw('text', hoveredNode);
+        if (hoveredNode && controls.get('showPreviewBox')) {
+          drawPreviewBox(hoveredNode);
+        } else {
+          _appleOverlay.style.display     = 'none';
+          _artOverlay.style.display       = 'none';
+          _fantasyOverlay.style.display   = 'none';
+          _techOverlay.style.display      = 'none';
+          _archOverlay.style.display      = 'none';
+          _commOverlay.style.display      = 'none';
+          _lifestyleOverlay.style.display = 'none';
+          _urbanOverlay.style.display     = 'none';
+          _litOverlay.style.display       = 'none';
+          _theoryOverlay.style.display    = 'none';
+          _psychoOverlay.style.display    = 'none';
+          _scienceOverlay.style.display   = 'none';
+          _langOverlay.style.display      = 'none';
+        _tvOverlay.style.display        = 'none';
+        _historyOverlay.style.display   = 'none';
+        _genderOverlay.style.display    = 'none';
+        _altOverlay.style.display       = 'none';
+        _thoughtOverlay.style.display   = 'none';
+        }
+      }
+
+      function windowResized() {
+        const area = document.querySelector('.tool-canvas-area');
+        resizeCanvas(area.clientWidth, area.clientHeight);
+        for (let n of nodes) {
+          n.x = constrain(n.x, 0, width);
+          n.y = constrain(n.y, 0, height);
+        }
+      }
+    }
+  </script>
+</body>
+</html>
